@@ -17,13 +17,24 @@ export default function LoginPage() {
     setMessage('');
 
     if (isRegister) {
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) setMessage(error.message);
-      else setMessage('Pendaftaran berhasil! Silakan login.');
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/login` : undefined,
+        },
+      });
+
+      if (error) {
+        setMessage(error.message);
+      } else {
+        setMessage('Pendaftaran berhasil! Jika verifikasi email aktif, silakan cek email Anda atau coba langsung login.');
+      }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) setMessage(error.message);
-      else {
+      if (error) {
+        setMessage(error.message);
+      } else {
         router.push('/dashboard');
         router.refresh();
       }
